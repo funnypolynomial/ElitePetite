@@ -26,3 +26,5 @@ But by far the bigest job was getting those ship edges to the LCD, fast.  The or
 A fair bit of all this is documented in the code...
 
 See also [Hackaday](https://hackaday.io/project/183107-elitepetite) and [flickr](https://flic.kr/s/aHBqjzvodW)
+
+**NOTE:** The Small/Touch version is only known to work with the Jaycar XC-4630 that comes in a *blister pack*, with *"2.8" TFT LCD Shield V3"* printed on the back of the board. See Issue #1.
