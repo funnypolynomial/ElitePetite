@@ -5,7 +5,7 @@
 // The LCD interface: 
 // Initialise/define a window/fill it with colour.
 // Done with macros, LCD_BEGIN_FILL, LCD_FILL_COLOUR etc
-#define LCD_LARGE
+//#define LCD_LARGE
 #ifdef LCD_LARGE
 #include "Elite_Large.h"
 #else
@@ -37,6 +37,7 @@
 #define ENABLE_RAM_OVERFLOW     // Program load overflows into video RAM (Electron)
 
 // Debugging, Serial, stats etc
+//#define DEBUG_STACK_CHECK          // Check that there's enough stack. Reported in Title
 //#define DEBUG
 #ifdef DEBUG
 // Dump variable to serial

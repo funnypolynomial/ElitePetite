@@ -15,6 +15,10 @@ unsigned long sumLinesMS = 0;
 unsigned long sumPaintMS = 0;
 #endif
 
+#ifdef DEBUG_STACK_CHECK
+extern uint16_t stackHeadroom;
+#endif
+
 // see https://www.bbcelite.com/deep_dives/drawing_ships.html & https://www.bbcelite.com/electron/main/subroutine/title.html
 namespace view {
 /*
@@ -45,7 +49,7 @@ bool manualMode = false;  // manually pitching & rolling
 void GetTimeStr(char* Buffer)
 {
   // puts HHMM into buffer, 12 or 24-hour format
-  rtc.ReadTime(false);
+  rtc.ReadTime();
   if (config::data.m_b24HourTime)
   {
     Buffer[0] = '0' + (rtc.m_Hour24 / 10);
@@ -75,6 +79,15 @@ const char* GetTextLine(int item, int& x, int& y, text::CharReader& charReader)
     // ELITE is on the second line
     x = SCREEN_OFFSET_X + TEXT_SIZE * 6;
     y = SCREEN_OFFSET_Y + TEXT_SIZE * 1;
+#ifdef DEBUG_STACK_CHECK
+    // report stack headroom in score
+    char* pStr2 = pTimeTitle;
+    config::I2A(stackHeadroom / 100, pStr2, ' ');
+    config::I2A(stackHeadroom % 100, pStr2, '0');
+    *pStr2 = 0;
+    charReader = text::StdCharReader;
+    return pTimeTitle;
+#else
     if (config::data.m_bTimeTitle)
     {
       // the title is ---- H H : M M ----
@@ -90,6 +103,7 @@ const char* GetTextLine(int item, int& x, int& y, text::CharReader& charReader)
       return pTimeTitle;
     }
     return pElite;
+#endif
   }
   else if (item == 1)
   {

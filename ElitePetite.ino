@@ -76,12 +76,16 @@
  *      The image data for the dials and the large text on the credit screen are also from files on GitHub.
  *      The "Saturn" credits screen is C code written to recreate (mostly) what the original asm did.
  *      Sadly I have not yet been able to resurrect my own Electron otherwise I might have tried loading "Elite" from tape.
+ *      STOP_PRESS: I have now played Eite on my Electron :-)
  *      
  *    Customization:
  *      Include or exclude a Real Time Clock via RTC_I2C_ADDRESS in RTC.h
  *      Include or exclude Set & Adj pushbuttons via PIN_BTN_SET & PIN_BTN_ADJ in Pins.h
  *      Customize the LCD (and Touch) via the defines in Elite.h
  *         * See Elite_Small.h and Elite_Large.h which define the LCD/Touch interface for two different LCD shields.
+ *         * XC4630_HX8347i switches between revisions of the small LCD
+ *         * There are also defines for left/right landscape orientation
+ *         * See XC4630_TOUCH_CALIB/CHECK for touch-screen calibration/check
  *      Several other things can be customised, see the ENABLE_ defines in Elite.h
  *      The text shown in the Status page (Commander name, Rating etc) can be edited (statusText in voew.cpp).
  *      
@@ -91,8 +95,51 @@
  *        * BBC Micro Elite was written by Ian Bell and David Braben and is copyright (c) Acornsoft 1984.
  *        * Acorn Electron Elite was written by Ian Bell and David Braben and is copyright (c) Acornsoft 1984.
  *      Looking at all those lines of asm reinforces what a mammoth effort it was.
+ *      
+ *    Changes:
+ *      Sept 2022: 
+ *      Added support for new-stock "Small" LCD (Jaycar XC4630, HX8347 controller, comes in an anti-static bag). 
+ *      Removed XC4630d.* (it’s all in LCD.cpp). 
+ *      Saved some dynamic memory, increased sparse buffer size.  
+ *      Added optional stack check (DEBUG_STACK_CHECK), touch calib (XC4630_TOUCH_CALIB) and touch check (XC4630_TOUCH_CHECK). 
+ *      Adopted some bug fixes to sparse from LittleZone.
  */
 
+#ifdef DEBUG_STACK_CHECK
+// see, for example, https://www.avrfreaks.net/forum/soft-c-avrgcc-monitoring-stack-usage
+extern uint8_t _end;
+uint8_t stackFill = 0;
+uint16_t stackHeadroom = 9999;
+void StackPaint()
+{
+  // Fill bytes from the top of dynamic variables up to the top of our stack
+  uint8_t* ptr = &_end;
+  stackFill++;  // different value each time
+  while (ptr < (uint8_t*)&ptr)
+  {
+    *ptr = stackFill;
+    ptr++;
+  }
+} 
+
+void StackCheck()
+{
+  // Check bytes from the top of dynamic variables up to the bottom of our stack
+  // Updates stackHeadroom
+  const uint8_t *ptr = &_end;
+  uint16_t       ctr = 0;
+  while (*ptr == stackFill && ptr < (uint8_t*)&ptr)
+  {
+    ptr++;
+    ctr++;
+  }
+  if (ctr < stackHeadroom)
+    stackHeadroom = ctr;
+}
+#else
+#define StackPaint()
+#define StackCheck()
+#endif
 
 void setup()
 {
@@ -119,6 +166,7 @@ int count = 0;
 
 void loop()
 {
+  StackPaint();
   config::Loop();
   unsigned long nowMS = millis();
   elite::Loop();
@@ -137,4 +185,5 @@ void loop()
 #endif  
   if (durationMS < config::data.minimumFramePeriodMS)
     delay(config::data.minimumFramePeriodMS - durationMS);
+  StackCheck();
 }

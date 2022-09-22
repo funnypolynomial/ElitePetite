@@ -20,4 +20,5 @@ namespace config
   void Loop();
   
   extern Data data;
+  void I2A(int i, char*& pBuff, char leading);
 };

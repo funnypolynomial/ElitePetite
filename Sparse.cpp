@@ -59,7 +59,7 @@ namespace sparse {
 // Drawn in full
 const int SPARSE_ROWS = SHIP_WINDOW_SIZE;
 const int SPARSE_COLS = SHIP_WINDOW_SIZE;
-const int SPARSE_POOL_SIZE = 900;
+const int SPARSE_POOL_SIZE = 1024;
 
 // the x at _ptr in the pool
 #define SPARSE_GET_X(_ptr)      (*_ptr)
@@ -116,7 +116,7 @@ static bool Insert(byte y, byte* pValue, byte value, byte value2 = 0)
     {
       // there's room for 2 bytes
       // shuffle pool bytes up
-      memmove(pValue + 2, pValue, (pool + pool_top) - pValue - 1);
+      memmove(pValue + 2, pValue, (pool + pool_top) - pValue);
       *pValue = value;
       *(pValue + 1) = value2;
       pool_top += 2;
@@ -164,12 +164,12 @@ static void Pixel(byte x, byte y)
     {
       if (x >= 2) // 2 bytes will work
       {
-        if (!sparse::Insert(y, thisPtr + 1, 2))  // len=2
+        if (!Insert(y, thisPtr + 1, 2))  // len=2
           cacheY = INF;
       }
       else // need 3
       {
-        if (!sparse::Insert(y, thisPtr + 1, NUL))  // len=2, as 3 bytes
+        if (!Insert(y, thisPtr + 1, NUL, 2))  // len=2, as 3 bytes
           cacheY = INF;
       }
     }
@@ -178,7 +178,7 @@ static void Pixel(byte x, byte y)
       thisPtr++;
       if (x > *thisPtr)
         (*thisPtr)++;   // len++
-      else if (sparse::Insert(y, thisPtr++, NUL)) // need to go to 3 bytes
+      else if (Insert(y, thisPtr++, NUL)) // need to go to 3 bytes
         (*thisPtr)++;   // len++
       else
         cacheY = INF;
@@ -218,7 +218,7 @@ static void Pixel(byte x, byte y)
   cacheY = INF;
   if (!bytesInRow) // append. got to the end without finding a place to insert/update
   {
-    sparse::Insert(y, thisPtr, x);
+    Insert(y, thisPtr, x);
     cacheX = x + 1;
     cacheY = y;
     cachePtr = thisPtr;
@@ -232,16 +232,16 @@ static void Pixel(byte x, byte y)
     if (bytes == 1)
     {
       if (x >= 2) // 2 bytes will work
-        sparse::Insert(y, thisPtr + 1, 2);  // len=2
+        Insert(y, thisPtr + 1, 2);  // len=2
       else // need 3
-        sparse::Insert(y, thisPtr + 1, NUL, 2);  // len=2, as 3 bytes
+        Insert(y, thisPtr + 1, NUL, 2);  // len=2, as 3 bytes
     }
     else if (bytes == 2)
     {
       thisPtr++;
       if (x > *thisPtr)
         (*thisPtr)++;   // len++
-      else if (sparse::Insert(y, thisPtr++, NUL)) // need to go to 3 bytes
+      else if (Insert(y, thisPtr++, NUL)) // need to go to 3 bytes
         (*thisPtr)++;   // len++
     }
     else // 3 bytes
@@ -257,16 +257,16 @@ static void Pixel(byte x, byte y)
     if (bytes == 1)
     {
       if (x >= 2) // 2 bytes will work
-        sparse::Insert(y, thisPtr + 1, 2);  // len=2
+        Insert(y, thisPtr + 1, 2);  // len=2
       else // need 3
-        sparse::Insert(y, thisPtr + 1, NUL);  // len=2, as 3 bytes
+        Insert(y, thisPtr + 1, NUL, 2);  // len=2, as 3 bytes
     }
     else if (bytes == 2)
     {
       thisPtr++;
       if (x > *thisPtr)
         (*thisPtr)++;   // len++
-      else if (sparse::Insert(y, thisPtr++, NUL)) // need to go to 3 bytes
+      else if (Insert(y, thisPtr++, NUL)) // need to go to 3 bytes
         (*thisPtr)++;   // len++
     }
     else // 3 bytes
@@ -277,7 +277,7 @@ static void Pixel(byte x, byte y)
   }
   else if (x < SPARSE_GET_X(thisPtr))     // insert before thisPtr
   {
-    sparse::Insert(y, thisPtr, x);
+    Insert(y, thisPtr, x);
     cacheX = x + 1;
     cacheY = y;
     cachePtr = thisPtr;

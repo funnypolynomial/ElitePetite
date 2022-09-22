@@ -13,11 +13,7 @@ SoftwareI2C softWire;
 RTC::RTC():
   m_Hour24(0x12),
   m_Minute(0),
-  m_Second(0),
-  m_DayOfWeek(1),
-  m_DayOfMonth(1),
-  m_Month(1),
-  m_Year(12)
+  m_Second(0)
 {
 }
 
@@ -25,32 +21,19 @@ RTC::RTC():
 void RTC::Setup()
 {
   softWire.begin(PIN_RTC_SDA, PIN_RTC_SCL);
-  ReadTime(true);
+  ReadTime();
 }
 
-void RTC::ReadTime(bool Full)
+void RTC::ReadTime()
 {
-  if (Full)
-  {
-    // from register 0
-    softWire.beginTransmission(RTC_I2C_ADDRESS);
-    softWire.write((byte)0x00);
-    softWire.endTransmission();
+  // just the minutes and hours
+  // from register 1
+  softWire.beginTransmission(RTC_I2C_ADDRESS);
+  softWire.write((byte)0x01);
+  softWire.endTransmission();
 
-    softWire.requestFrom(RTC_I2C_ADDRESS, 7);
+  softWire.requestFrom(RTC_I2C_ADDRESS, 2);
 
-    m_Second = BCD2Dec(softWire.read());
-  }
-  else
-  {
-    // just the minutes and hours
-    // from register 1
-    softWire.beginTransmission(RTC_I2C_ADDRESS);
-    softWire.write((byte)0x01);
-    softWire.endTransmission();
-
-    softWire.requestFrom(RTC_I2C_ADDRESS, 2);
-  }
   m_Minute = BCD2Dec(softWire.read());
   byte Register2 = softWire.read();
   if (Register2 & 0x40)  // 12/24 hr
@@ -67,14 +50,6 @@ void RTC::ReadTime(bool Full)
   {
     // 24 hour mode
     m_Hour24 = BCD2Dec(Register2 & 0x3F);
-  }
-
-  if (Full)
-  {
-    m_DayOfWeek  = BCD2Dec(softWire.read());
-    m_DayOfMonth = BCD2Dec(softWire.read());
-    m_Month      = BCD2Dec(softWire.read());
-    m_Year       = BCD2Dec(softWire.read());
   }
 }
 
@@ -110,10 +85,6 @@ void RTC::WriteTime()
   softWire.write(Dec2BCD(m_Second));
   softWire.write(Dec2BCD(m_Minute));
   softWire.write(Dec2BCD(m_Hour24));  // 24 hr mode
-  softWire.write(Dec2BCD(m_DayOfWeek));
-  softWire.write(Dec2BCD(m_DayOfMonth));
-  softWire.write(Dec2BCD(m_Month));
-  softWire.write(Dec2BCD(m_Year));
   softWire.endTransmission();
 }
 #else
@@ -121,7 +92,7 @@ void RTC::Setup()
 {
 }
 
-void RTC::ReadTime(bool )
+void RTC::ReadTime( )
 {
 }
 

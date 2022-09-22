@@ -1,6 +1,6 @@
 #pragma once
-
 // Small version uses 240x320 LCD Touch Screen Shield, https://www.jaycar.co.nz/240x320-lcd-touch-screen-for-arduino/p/XC4630, SPFD5408 interface?
+// --OR-- later revision of above, HX8347i, see XC4630_HX8347i define
 #include "LCD.h"
 // The LCD interface
 // Initialise

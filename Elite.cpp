@@ -76,7 +76,7 @@ void Start()
   // run the startup; commands, credits
 #if defined(RTC_I2C_ADDRESS) && !defined(DEBUG)
   // seed the PRNG from time: hr, min, sec & day
-  rtc.ReadTime(true);
+  rtc.ReadTime();
   randomSeed(*(reinterpret_cast<unsigned long*>(&rtc.m_Hour24)));
 #endif  
   LCD_FILL_BYTE(LCD_BEGIN_FILL(0, 0, LCD_WIDTH, LCD_HEIGHT), 0x00);

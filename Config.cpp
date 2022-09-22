@@ -449,7 +449,7 @@ void ConfigurationMenu()
       // Multiple menus so they fit, but they're wide, so pull it left
       X = orgX + 6*TEXT_SIZE;
       selection = 2 * data.m_b24HourTime;
-      rtc.ReadTime(false);
+      rtc.ReadTime();
       if (rtc.m_Hour24 >= 12)
         selection++;
       if (PickFromMenu(timeMenuStr, X, Y, selection))  //  12/24 am/pm
