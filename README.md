@@ -27,4 +27,7 @@ A fair bit of all this is documented in the code...
 
 See also [Hackaday](https://hackaday.io/project/183107-elitepetite) and [flickr](https://flic.kr/s/aHBqjzvodW)
 
-**NOTE:** The Small/Touch version is only known to work with the Jaycar XC-4630 that comes in a *blister pack*, with *"2.8" TFT LCD Shield V3"* printed on the back of the board. See Issue #1.
+**NOTE:** The Small/Touch version now works with **both** revisions of the Jaycar XC-4630:
+- the original which comes in a *blister pack*, with *"2.8" TFT LCD Shield V3"* printed on the back of the board. 
+- AND the newer one which comes in an *anti-static bag* and has "HX8347" on the back.
+- See the XC4630_HX8347i define in LCD.h
